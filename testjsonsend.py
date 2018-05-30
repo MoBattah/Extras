@@ -1,17 +1,23 @@
 import sys
 import pyodbc
 from flask import Flask, request, abort
+import logging
 
 app = Flask(__name__)
 
 
 @app.route('/', methods=['POST'])
 def main():
+    logging.basicConfig(filename='PingdomAPI.log', level=logging.DEBUG)
     print("Webhook started"); sys.stdout.flush()
+    logging.debug("Webhook started")
     if request.method == 'POST':
+        logging.debug("Recieved POST")
+        logging.debug(request.json)
         gatherParameters()
         return '', 200
     else:
+        logging.debug("Recieved something other than POST")
         abort(400)
 
 def gatherParameters():
@@ -42,8 +48,10 @@ def SQLExecute(executestring):
     conn = pyodbc.connect(r'DSN=TestWebHookDB;UID=mo.battah;PWD=pass')
     conn.autocommit = True
     cursor = conn.cursor()
+    logging.debug(executestring)
     print(executestring)
     cursor.execute("" + executestring + "")
+    logging.debug("SQL executed")
 
 
 if __name__ == '__main__':
