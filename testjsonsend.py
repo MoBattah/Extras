@@ -1,4 +1,3 @@
-
 import sys
 import pyodbc
 from flask import Flask, request, abort
@@ -21,7 +20,7 @@ def main():
 def stdstatement(columnname):
     param = request.json[str(columnname)]
     param = str(param)
-    stdstatement1 = "INSERT INTO WebHookTestTable ("+columnname+") VALUES("+param+")"
+    stdstatement1 = "INSERT INTO WebHookTestTable ("+columnname+") VALUES(\'"+param+"\')"
     stdstatement1 = str(stdstatement1)
     print(stdstatement1)
     SQLExecute(stdstatement1)
@@ -30,6 +29,7 @@ def SQLExecute(executestring):
     conn = pyodbc.connect(r'DSN=TestWebHookDB;UID=mo.battah;PWD=pass')
     conn.autocommit = True
     cursor = conn.cursor()
+    print(executestring)
     cursor.execute("" + executestring + "")
 
 
