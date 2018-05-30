@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
 def main():
-    print("webhook"); sys.stdout.flush()
+    print("Webhook started"); sys.stdout.flush()
     if request.method == 'POST':
         gatherParameters()
         return '', 200
@@ -15,14 +15,24 @@ def main():
         abort(400)
 
 def gatherParameters():
-    check_id = createStatement("check_id")
-    check_type = createStatement("check_type")
-    previous_state = createStatement("previous_state")
-    sqlStatement = "INSERT INTO WebHookTestTable (check_id, check_type, previous_state) VALUES(\'"+check_id+"\',\'"+check_type+"\',\'"+previous_state+"\') "
+    check_id = fetchParameter("check_id")
+    check_type = fetchParameter("check_type")
+    hostname = request.json["check_params"]["hostname"]
+    full_url = request.json["check_params"]["full_url"]
+    previous_state = fetchParameter("previous_state")
+    current_state = fetchParameter("current_state")
+    importance_level = fetchParameter("importance_level")
+    state_changed_timestamp = fetchParameter("state_changed_timestamp")
+    state_changed_utc_time = fetchParameter("state_changed_utc_time")
+    check_name = fetchParameter("check_name")
+    long_description = fetchParameter("long_description")
+    description = fetchParameter("description")
+    sqlStatement = "INSERT INTO WebHookTestTable (check_id, check_name, check_type, full_url, hostname, previous_state, current_state, importance_level, state_changed_timpstamp, state_changed_utc_time, long_description, description) " \
+                   "VALUES(\'"+check_id+"\',\'"+check_name+"\',\'"+check_type+"\',\'"+previous_state+"\',\'"+current_state+"\',\'"+full_url+"\',\'"+hostname+"\',\'"+importance_level+"\',\'"+state_changed_timestamp+"\',\'"+state_changed_utc_time+"\',\'"+long_description+"\',\'"+description+"\')"
     SQLExecute(sqlStatement)
 
 
-def createStatement(columnname):
+def fetchParameter(columnname):
     param = request.json[str(columnname)]
     param = str(param)
     return param
