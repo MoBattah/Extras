@@ -9,21 +9,24 @@ app = Flask(__name__)
 def main():
     print("webhook"); sys.stdout.flush()
     if request.method == 'POST':
-        stdstatement("check_id")
-        stdstatement("check_type")
-        stdstatement("previous_state")
+        gatherParameters()
         return '', 200
     else:
         abort(400)
 
+def gatherParameters():
+    check_id = createStatement("check_id")
+    check_type = createStatement("check_type")
+    previous_state = createStatement("previous_state")
+    sqlStatement = "INSERT INTO WebHookTestTable (check_id, check_type, previous_state) VALUES(\'"+check_id+"\',\'"+check_type+"\',\'"+previous_state+"\') "
+    SQLExecute(sqlStatement)
 
-def stdstatement(columnname):
+
+def createStatement(columnname):
     param = request.json[str(columnname)]
     param = str(param)
-    stdstatement1 = "INSERT INTO WebHookTestTable ("+columnname+") VALUES(\'"+param+"\')"
-    stdstatement1 = str(stdstatement1)
-    print(stdstatement1)
-    SQLExecute(stdstatement1)
+    return param
+
 
 def SQLExecute(executestring):
     conn = pyodbc.connect(r'DSN=TestWebHookDB;UID=mo.battah;PWD=pass')
