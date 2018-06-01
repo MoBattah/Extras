@@ -21,6 +21,7 @@ def main():
         abort(400)
 
 def gatherParameters():
+    logging.debug("gatherParameters")
     check_id = fetchParameter("check_id")
     check_type = fetchParameter("check_type")
     hostname = request.json["check_params"]["hostname"]
@@ -34,23 +35,26 @@ def gatherParameters():
     long_description = fetchParameter("long_description")
     description = fetchParameter("description")
     sqlStatement = "INSERT INTO WebHookTestTable (check_id, check_name, check_type, full_url, hostname, previous_state, current_state, importance_level, state_changed_timpstamp, state_changed_utc_time, long_description, description) " \
-                   "VALUES(\'"+check_id+"\',\'"+check_name+"\',\'"+check_type+"\',\'"+previous_state+"\',\'"+current_state+"\',\'"+full_url+"\',\'"+hostname+"\',\'"+importance_level+"\',\'"+state_changed_timestamp+"\',\'"+state_changed_utc_time+"\',\'"+long_description+"\',\'"+description+"\')"
+                   "VALUES(\'"+check_id+"\',\'"+check_name+"\',\'"+check_type+"\',\'"+full_url+"\',\'"+hostname+"\',\'"+previous_state+"\',\'"+current_state+"\',\'"+importance_level+"\',\'"+state_changed_timestamp+"\',\'"+state_changed_utc_time+"\',\'"+long_description+"\',\'"+description+"\')"
     SQLExecute(sqlStatement)
+    logging.debug("Executed "+sqlStatement)
 
 
 def fetchParameter(columnname):
+    logging.debug("fetchParameter")
     param = request.json[str(columnname)]
     param = str(param)
     return param
 
 
 def SQLExecute(executestring):
+    logging.debug("SQLExecute")
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=testuser;'
-        r'PWD=testpass'
+        r'UID=user;'
+        r'PWD=pass'
     )
     conn.autocommit = True
     cursor = conn.cursor()
@@ -61,4 +65,4 @@ def SQLExecute(executestring):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run('0.0.0.0',8083)
