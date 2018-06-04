@@ -9,7 +9,8 @@ app = Flask(__name__)
 @app.route('/', methods=['POST'])
 def main():
     logging.basicConfig(filename='PingdomAPI.log', level=logging.DEBUG)
-    print("Webhook started"); sys.stdout.flush()
+    print("Webhook started"); 
+    #logging.debug(sys.stdout.flush())
     logging.debug("Webhook started")
     if request.method == 'POST':
         logging.debug("Recieved POST")
@@ -22,12 +23,19 @@ def main():
 
 def gatherParameters():
     logging.debug("gatherParameters")
+    print("GatherParameters")
     check_id = fetchParameter("check_id")
+    print("Fetch check_id")
     check_type = fetchParameter("check_type")
+    print("Fetch check_type")
     hostname = request.json["check_params"]["hostname"]
+    print("Fetch hostname")
     full_url = request.json["check_params"]["full_url"]
+    print("Fetch url")
     previous_state = fetchParameter("previous_state")
+    print("Fetch prev state")
     current_state = fetchParameter("current_state")
+    print("Fetch current state")
     importance_level = fetchParameter("importance_level")
     state_changed_timestamp = fetchParameter("state_changed_timestamp")
     state_changed_utc_time = fetchParameter("state_changed_utc_time")
