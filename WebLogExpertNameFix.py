@@ -17,7 +17,7 @@ for item in profileList:
         print(profileName)
         namesource = url2 + fname + ".pfl"
         print(namesource)
-        namedest = profileName + fname + ".pf1" #add fname to avoid same domain
+        namedest = profileName + fname + ".pfl" #add fname to avoid same domain
         namedest = namedest.replace('\\','_')
         namedest = namedest.replace('/','_')
         namedest = namedest.replace('*','_')
