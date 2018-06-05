@@ -2,7 +2,7 @@
 """WSGI server example"""
 from __future__ import print_function
 from gevent.pywsgi import WSGIServer
-from AWSWebHook import app
+from PingdomWebHook import app
 
 def application(env, start_response):
     if env['PATH_INFO'] == '/':
