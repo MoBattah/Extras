@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
 def main():
-    logging.basicConfig(filename='PingdomAPI.log', level=logging.DEBUG)
-    print("Webhook started"); 
+    logging.basicConfig(filename='C:\\Users\\mo.battah\\Documents\\PingdomAPI.log', level=logging.DEBUG)
+    print("Webhook started");
     #logging.debug(sys.stdout.flush())
     logging.debug("Webhook started")
     if request.method == 'POST':
@@ -20,6 +20,7 @@ def main():
     else:
         logging.debug("Recieved something other than POST")
         abort(400)
+    main()
 
 def gatherParameters():
     logging.debug("gatherParameters")
@@ -30,7 +31,9 @@ def gatherParameters():
     print("Fetch check_type")
     hostname = request.json["check_params"]["hostname"]
     print("Fetch hostname")
-    full_url = request.json["check_params"]["full_url"]
+    try: full_url = request.json["check_params"]["full_url"]
+    except KeyError:
+        full_url = hostname
     print("Fetch url")
     previous_state = fetchParameter("previous_state")
     print("Fetch prev state")
