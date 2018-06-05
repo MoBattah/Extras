@@ -4,7 +4,7 @@ import os
 profileList = os.listdir(path="C:\\Users\\mo.battah\\Documents\\WebLog\\Profiles")  #Fill in where your profiles are located
 url = "C:\\Users\\mo.battah\\Documents\\WebLog\\Profiles"
 url2 = "C:\\Users\\mo.battah\\Documents\\WebLog\\Profiles\\" #url2 keeps the last two slashes
-#print(profileList)
+print(profileList)
 
 for item in profileList:
     fname = item[0:len(item)-4] #getting the filename without extension
@@ -17,7 +17,7 @@ for item in profileList:
         print(profileName)
         namesource = url2 + fname + ".pfl"
         print(namesource)
-        namedest = profileName + ".pf1"
+        namedest = profileName + fname + ".pf1" #add fname to avoid same domain
         namedest = namedest.replace('\\','_')
         namedest = namedest.replace('/','_')
         namedest = namedest.replace('*','_')
@@ -28,4 +28,5 @@ for item in profileList:
         except FileNotFoundError:
             print("This will need a check: " + namedest)
     else:
-        print("Please check " + item)
+        print("please check " + item)
+
