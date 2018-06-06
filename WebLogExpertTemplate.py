@@ -1,6 +1,24 @@
 from jinja2 import Template
+import pyodbc
 
-t = Template("[Profile]\nName={{PName}}\n[General]\nIndexFile=default.aspx\nDomain={{domain}}\nDNSLookup=1\n"\
+def main():
+    SQLGET()
+
+def SQLGET():
+    conn = pyodbc.connect(
+        r'DRIVER={ODBC Driver 17 for SQL Server};'
+        r'SERVER=devops01test.database.windows.net;'
+        r'DATABASE=TestWebHookDB;'
+        r'UID=user;'
+        r'PWD=pass'
+    )
+    cursor = conn.cursor()
+    sqlstring = "SELECT TOP (1000) [ProfileName],[ProfileType],[LogFilePath],[TargetFilePath] FROM [dbo].[profiles]"
+    cursor.execute(sqlstring)
+    for row in cursor:
+        print(row[0])
+def CreateTemplate():
+    t = Template("[Profile]\nName={{PName}}\n[General]\nIndexFile=default.aspx\nDomain={{domain}}\nDNSLookup=1\n"\
              "bRetrievePageTitles=0\nbUseANalysisCache=1\nPaidSearchAndGoals=0\nCustomAnalysisSettings=0\n"\
              "AnalysisSettings-iShowFileQueryParameters=0\nAnalysisSettings-stFileQueryParameters=\n"
              "AnalysisSettings-iFileNamesCase=0\nAnalysisSettings-bConvertFileQueriesToLowerCase=0\n"
@@ -23,4 +41,18 @@ t = Template("[Profile]\nName={{PName}}\n[General]\nIndexFile=default.aspx\nDoma
              "SearchResultType5=0\nEnabled5=1\n[Report]\nDest=4\nServerUsers=\nCustomDashboardSettings=0"
              "\nSaveRawData=1\nCustomCommonReportFormat=0\nReportFormat=1\nCustomPDFReportFormat=0"
              "\nCustomReportContents=0\nReplaceDailyChart=0\nShowReport=0")
-a = t.render(PName = "Your profile name",domain="yourdomain") #add any other params
+    ProfileName=""
+    Domain=""
+    LogFilePath=""
+    apfl = t.render(PName=ProfileName,domain=Domain,logfilepath=LogFilePath)
+    print(apfl)
+
+
+    with open("newfile.pfl", "w") as fh:
+        fh.write(apfl)
+        fh.close()
+
+if __name__ == "__main__":
+    main()
+
+
