@@ -9,27 +9,20 @@ def main():
     SQLList = SQLGET()
     profileList = FetchProfileFolder()
     WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList)
-
+    count = 0
     for x, y, z in zip(WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths):
-        count = 1
         profile = WebProfilesToBeAdded[count]
         domain = DomainNamesToBeAdded[count]
         logpath = LogPaths[count]
         CreateTemplate(profile, domain, logpath)
         count = count + 1
-
-
-    # for x in WebProfilesToBeAdded:
-    #     for y in DomainNamesToBeAdded:
-    #         for z in LogPaths:
-    #             CreateTemplate(WebProfilesToBeAdded[x], DomainNamesToBeAdded[x], LogPaths[z])
     #sys.stdout.close()
 def SQLGET():
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=user;'
+        r'UID=pass;'
         r'PWD=pass'
     )
     cursor = conn.cursor()
@@ -71,7 +64,9 @@ def CreateTemplate(ProfileName, Domain, LogFilepath):
     TDomain = Domain
     TLogFilePath=LogFilepath
     apfl = t.render(PName=TProfileName,domain=TDomain,logfilepath=TLogFilePath)
-    with open(TProfileName + ".pfl", "w") as fh:
+    NewProfilePath = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\"
+    filename = NewProfilePath + TProfileName + ".pfl"
+    with open(filename, "w") as fh:
         fh.write(apfl)
         fh.close()
 
