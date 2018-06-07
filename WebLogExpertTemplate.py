@@ -1,9 +1,11 @@
 from jinja2 import Template
 import pyodbc
+import os
 
 def main():
-    SQLGET()
-
+    SQLList = SQLGET()
+    profileList = FetchProfileFolder()
+    CompareData(profileList, SQLList)
 def SQLGET():
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
@@ -15,8 +17,14 @@ def SQLGET():
     cursor = conn.cursor()
     sqlstring = "SELECT TOP (1000) [ProfileName],[ProfileType],[LogFilePath],[TargetFilePath] FROM [dbo].[profiles]"
     cursor.execute(sqlstring)
-    for row in cursor:
-        print(row[0])
+    return cursor
+
+
+def FetchProfileFolder():
+    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\Profiles" #where profiles are located
+    profileList = os.listdir(path=url)
+    return profileList
+
 def CreateTemplate():
     t = Template("[Profile]\nName={{PName}}\n[General]\nIndexFile=default.aspx\nDomain={{domain}}\nDNSLookup=1\n"\
              "bRetrievePageTitles=0\nbUseANalysisCache=1\nPaidSearchAndGoals=0\nCustomAnalysisSettings=0\n"\
@@ -51,6 +59,29 @@ def CreateTemplate():
     with open("newfile.pfl", "w") as fh:
         fh.write(apfl)
         fh.close()
+
+def CompareData(profileList, SQLList):
+    profileNames = []
+    for row in SQLList:
+        profileNames.append(row[0])  #creating a profileNames list of the profile names from SQL
+    url2 = "C:\\Users\\mo.battah\\Documents\\WebLog\\Profiles\\" #url2 keeps the last two slashes
+    count = 0
+    domainlist = []
+    for item in profileList:
+        xpath = url2 + profileList[count]
+        fp = open(xpath, 'r')
+        line = fp.readlines()
+        line = line[1] #grabs name= line
+        domainname = str(line[5:len(line)-1])
+        domainlist.append(domainname)
+        count = count + 1
+    #print(domainlist)
+    a = set(domainlist) & set(profileNames)
+    print(a)
+    print("length of a: ", len(a))
+    print("length of domain list: ", len(domainlist))
+    print("length of profilenames: ", len(profileNames))
+
 
 if __name__ == "__main__":
     main()
