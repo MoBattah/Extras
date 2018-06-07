@@ -1,18 +1,36 @@
 from jinja2 import Template
 import pyodbc
 import os
+import sys
+
 
 def main():
+    #sys.stdout=open('logfile.txt', 'a')
     SQLList = SQLGET()
     profileList = FetchProfileFolder()
-    CompareData(profileList, SQLList)
+    WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList)
+
+    for x, y, z in zip(WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths):
+        count = 1
+        profile = WebProfilesToBeAdded[count]
+        domain = DomainNamesToBeAdded[count]
+        logpath = LogPaths[count]
+        CreateTemplate(profile, domain, logpath)
+        count = count + 1
+
+
+    # for x in WebProfilesToBeAdded:
+    #     for y in DomainNamesToBeAdded:
+    #         for z in LogPaths:
+    #             CreateTemplate(WebProfilesToBeAdded[x], DomainNamesToBeAdded[x], LogPaths[z])
+    #sys.stdout.close()
 def SQLGET():
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=user;'
-        r'PWD=pass'
+        r'UID=mo.battah;'
+        r'PWD=Menal10r'
     )
     cursor = conn.cursor()
     sqlstring = "SELECT TOP (1000) [ProfileName],[ProfileType],[LogFilePath],[TargetFilePath] FROM [dbo].[profiles]"
@@ -21,11 +39,11 @@ def SQLGET():
 
 
 def FetchProfileFolder():
-    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\Profiles" #where profiles are located
+    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles" #where profiles are located
     profileList = os.listdir(path=url)
     return profileList
 
-def CreateTemplate():
+def CreateTemplate(ProfileName, Domain, LogFilepath):
     t = Template("[Profile]\nName={{PName}}\n[General]\nIndexFile=default.aspx\nDomain={{domain}}\nDNSLookup=1\n"\
              "bRetrievePageTitles=0\nbUseANalysisCache=1\nPaidSearchAndGoals=0\nCustomAnalysisSettings=0\n"\
              "AnalysisSettings-iShowFileQueryParameters=0\nAnalysisSettings-stFileQueryParameters=\n"
@@ -49,38 +67,44 @@ def CreateTemplate():
              "SearchResultType5=0\nEnabled5=1\n[Report]\nDest=4\nServerUsers=\nCustomDashboardSettings=0"
              "\nSaveRawData=1\nCustomCommonReportFormat=0\nReportFormat=1\nCustomPDFReportFormat=0"
              "\nCustomReportContents=0\nReplaceDailyChart=0\nShowReport=0")
-    ProfileName=""
-    Domain=""
-    LogFilePath=""
-    apfl = t.render(PName=ProfileName,domain=Domain,logfilepath=LogFilePath)
-    print(apfl)
-
-
-    with open("newfile.pfl", "w") as fh:
+    TProfileName=ProfileName
+    TDomain = Domain
+    TLogFilePath=LogFilepath
+    apfl = t.render(PName=TProfileName,domain=TDomain,logfilepath=TLogFilePath)
+    with open(TProfileName + ".pfl", "w") as fh:
         fh.write(apfl)
         fh.close()
 
 def CompareData(profileList, SQLList):
-    profileNames = []
+    SQLprofileNames = []
+    LogPaths = []
     for row in SQLList:
-        profileNames.append(row[0])  #creating a profileNames list of the profile names from SQL
-    url2 = "C:\\Users\\mo.battah\\Documents\\WebLog\\Profiles\\" #url2 keeps the last two slashes
+        if row[1] == "Web": #taking out any PDF profiles
+            SQLprofileNames.append(row[0])  #creating a SQLprofileNames list of the profile names from SQL DB
+            LogPaths.append(row[2]) #creating LogPaths list of log paths from SQL DB
+    url2 = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\" #url2 keeps the last two slashes
     count = 0
-    domainlist = []
-    for item in profileList:
+    OSdomainlist = []
+    for item in profileList:  #This loop will look through what files the OS has and it will make a list of the files based upon their profile name...profile name so that it matches up with the SQL name column.
         xpath = url2 + profileList[count]
         fp = open(xpath, 'r')
         line = fp.readlines()
         line = line[1] #grabs name= line
         domainname = str(line[5:len(line)-1])
-        domainlist.append(domainname)
+        OSdomainlist.append(domainname)
         count = count + 1
-    #print(domainlist)
-    a = set(domainlist) & set(profileNames)
-    print(a)
-    print("length of a: ", len(a))
-    print("length of domain list: ", len(domainlist))
-    print("length of profilenames: ", len(profileNames))
+    overlap = set(OSdomainlist) & set(SQLprofileNames)
+    print("These ", len(overlap), " profiles are already in WebLogExpert: \n", overlap)
+    toBeAddedProfiles = set(SQLprofileNames) - set(OSdomainlist)
+    toBeAddedProfiles = list(toBeAddedProfiles) #converting from set to list
+    print("\nThese", len(toBeAddedProfiles),"profiles are not in WebLogExpert but they should be: \n", toBeAddedProfiles)
+    domainnames = []
+    for item in toBeAddedProfiles: #getting domain names
+        line = item[item.index('_') + 1:len(item)]  #find where the underscore starts and only take what's after it, the actual domain names
+        domainnames.append(line)
+    return toBeAddedProfiles, domainnames, LogPaths
+
+
 
 
 if __name__ == "__main__":
