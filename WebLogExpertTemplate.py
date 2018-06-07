@@ -29,8 +29,8 @@ def SQLGET():
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=mo.battah;'
-        r'PWD=Menal10r'
+        r'UID=user;'
+        r'PWD=pass'
     )
     cursor = conn.cursor()
     sqlstring = "SELECT TOP (1000) [ProfileName],[ProfileType],[LogFilePath],[TargetFilePath] FROM [dbo].[profiles]"
