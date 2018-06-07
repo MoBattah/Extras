@@ -22,7 +22,7 @@ def SQLGET():
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=pass;'
+        r'UID=user;'
         r'PWD=pass'
     )
     cursor = conn.cursor()
@@ -33,7 +33,12 @@ def SQLGET():
 
 def FetchProfileFolder():
     url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles" #where profiles are located
-    profileList = os.listdir(path=url)
+    profileList = []
+    directorylist = os.listdir(path=url)
+    for item in directorylist:
+        if os.path.isfile(url + "\\" + item):
+            profileList.append(item)
+        else: print(item, " is a directory and not a file.")
     return profileList
 
 def CreateTemplate(ProfileName, Domain, LogFilepath):
@@ -64,7 +69,7 @@ def CreateTemplate(ProfileName, Domain, LogFilepath):
     TDomain = Domain
     TLogFilePath=LogFilepath
     apfl = t.render(PName=TProfileName,domain=TDomain,logfilepath=TLogFilePath)
-    NewProfilePath = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\"
+    NewProfilePath = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\NewProfiles\\"
     filename = NewProfilePath + TProfileName + ".pfl"
     with open(filename, "w") as fh:
         fh.write(apfl)
