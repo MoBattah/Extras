@@ -2,12 +2,12 @@ from jinja2 import Template
 import pyodbc
 import os
 import sys
+from shutil import copyfile
 
 def main():
     #sys.stdout=open('logfile.txt', 'a')  ###LOGGING
     if sys.argv[1] == 'r': #if r is passed as an argument, run the renamer script
-
-
+        renameDIGITFiles()
     SQLList = SQLGET()
     profileList = FetchProfileFolder()
     WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList)
