@@ -3,28 +3,39 @@ import pyodbc
 import os
 import sys
 from shutil import copyfile
+import datetime
 
 def main():
-    #sys.stdout=open('logfile.txt', 'a')  ###LOGGING
-    if sys.argv[1] == 'r': #if r is passed as an argument, run the renamer script
-        renameDIGITFiles()
+    global url
+    global url2
+    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles"  #type in here where your profiles are located
+    url2 = url + "\\"
+    sys.stdout = open(url + '\\logfile.txt', 'a')  ###LOGGING
+    print("Start: ", str(datetime.datetime.now()).split('.')[0])
+    chkmkdirs(url2)
+    try:
+        if sys.argv[1] == 'r': #if r is passed as an argument, run the renamer script
+            renameDIGITFiles(url, url2)
+    except:
+        print("No arguments passed. Will not run renamer script.")
     SQLList = SQLGET()
-    profileList = FetchProfileFolder()
-    WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList)
+    profileList = FetchProfileFolder(url, url2)
+    WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList, url, url2)
     count = 0
     for x, y, z in zip(WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths):
         profile = WebProfilesToBeAdded[count]
         domain = DomainNamesToBeAdded[count]
         logpath = LogPaths[count]
-        CreateTemplate(profile, domain, logpath)
+        CreateTemplate(profile, domain, logpath,url)
         count = count + 1
-    #sys.stdout.close()  ###LOGGING
+    print("End: ", str(datetime.datetime.now()).split('.')[0])
+    sys.stdout.close()  ###LOGGING
 def SQLGET():
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=user;'
+        r'UID=muser;'
         r'PWD=pass'
     )
     cursor = conn.cursor()
@@ -33,17 +44,16 @@ def SQLGET():
     return cursor
 
 
-def FetchProfileFolder():
-    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles" #where profiles are located
+def FetchProfileFolder(url, url2):
     profileList = []
     directorylist = os.listdir(path=url)
     for item in directorylist:
-        if os.path.isfile(url + "\\" + item):
+        if os.path.isfile(url2 + item):
             profileList.append(item)
         else: print(item, " is a directory and not a file.")
     return profileList
 
-def CreateTemplate(ProfileName, Domain, LogFilepath):
+def CreateTemplate(ProfileName, Domain, LogFilepath, url):
     t = Template("[Profile]\nName={{PName}}\n[General]\nIndexFile=default.aspx\nDomain={{domain}}\nDNSLookup=1\n"\
              "bRetrievePageTitles=0\nbUseANalysisCache=1\nPaidSearchAndGoals=0\nCustomAnalysisSettings=0\n"\
              "AnalysisSettings-iShowFileQueryParameters=0\nAnalysisSettings-stFileQueryParameters=\n"
@@ -71,21 +81,20 @@ def CreateTemplate(ProfileName, Domain, LogFilepath):
     TDomain = Domain
     TLogFilePath=LogFilepath
     apfl = t.render(PName=TProfileName,domain=TDomain,logfilepath=TLogFilePath)
-    NewProfilePath = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\NewProfiles\\"
+    NewProfilePath = url + "\\NewProfiles\\"
     filename = NewProfilePath + TProfileName + ".pfl"
     with open(filename, "w") as fh:
         fh.write(apfl)
         fh.close()
 
 
-def CompareData(profileList, SQLList):
+def CompareData(profileList, SQLList, url, url2):
     SQLprofileNames = []
     LogPaths = []
     for row in SQLList:
         if row[1] == "Web": #taking out any PDF profiles
             SQLprofileNames.append(row[0])  #creating a SQLprofileNames list of the profile names from SQL DB
             LogPaths.append(row[2]) #creating LogPaths list of log paths from SQL DB
-    url2 = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\" #url2 keeps the last two slashes
     count = 0
     OSdomainlist = []
     for item in profileList:  #This loop will look through what files the OS has and it will make a list of the files based upon their profile name...profile name so that it matches up with the SQL name column.
@@ -107,11 +116,9 @@ def CompareData(profileList, SQLList):
         domainnames.append(line)
     return toBeAddedProfiles, domainnames, LogPaths
 
-def renameDIGITFiles():
-    profileList = os.listdir(path="C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles")  # Fill in where your profiles are located
-    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles"
-    url2 = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\"  # url2 keeps the last two slashes
-    print(profileList)
+def renameDIGITFiles(url, url2):
+    profileList = os.listdir(path=url) #checks whats in the directory
+    print("List of files in ", url, profileList)
 
     for item in profileList:
         fname = item[0:len(item) - 4]  # getting the filename without extension
@@ -120,17 +127,17 @@ def renameDIGITFiles():
             line = fp.readlines()
             print(line[1])
             line = line[1]  # Gets the Name= line
-            profileName = str(line[5:len(line) - 1])
+            profileName = str(line[5:len(line) - 1]) #cuts off name= part
             print(profileName)
             namesource = url2 + fname + ".pfl"
-            print(namesource)
+            print("Renaming from ", namesource)
             namedest = profileName + fname + ".pfl"  # add fname to avoid same domain
             namedest = namedest.replace('\\', '_')
             namedest = namedest.replace('/', '_')
             namedest = namedest.replace('*', '_')
-            namedest = url2 + namedest
+            namedest = url3 + namedest
             print(namesource)
-            print(namedest)
+            print("Renamed to ", namedest)
             try:
                 copyfile(namesource, namedest)
             except FileNotFoundError:
@@ -138,6 +145,15 @@ def renameDIGITFiles():
         else:
             print("please check " + item)
 
+def chkmkdirs(url2):
+    if not os.path.exists(url2 + "NewProfiles\\"):
+        os.makedirs(url2 + "NewProfiles\\")
+        print("Created NewProfiles folder in ", url2)
+    global url3
+    url3 = url2 + "RenamedProfiles\\"
+    if not os.path.exists(url3):
+        os.makedirs(url3)
+        print("Created RenamedProfiles folder in ", url3)
 
 if __name__ == "__main__":
     main()
