@@ -3,9 +3,11 @@ import pyodbc
 import os
 import sys
 
-
 def main():
-    #sys.stdout=open('logfile.txt', 'a')
+    #sys.stdout=open('logfile.txt', 'a')  ###LOGGING
+    if sys.argv[1] == 'r': #if r is passed as an argument, run the renamer script
+
+
     SQLList = SQLGET()
     profileList = FetchProfileFolder()
     WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList)
@@ -16,7 +18,7 @@ def main():
         logpath = LogPaths[count]
         CreateTemplate(profile, domain, logpath)
         count = count + 1
-    #sys.stdout.close()
+    #sys.stdout.close()  ###LOGGING
 def SQLGET():
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
@@ -75,6 +77,7 @@ def CreateTemplate(ProfileName, Domain, LogFilepath):
         fh.write(apfl)
         fh.close()
 
+
 def CompareData(profileList, SQLList):
     SQLprofileNames = []
     LogPaths = []
@@ -104,7 +107,36 @@ def CompareData(profileList, SQLList):
         domainnames.append(line)
     return toBeAddedProfiles, domainnames, LogPaths
 
+def renameDIGITFiles():
+    profileList = os.listdir(path="C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles")  # Fill in where your profiles are located
+    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles"
+    url2 = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles\\"  # url2 keeps the last two slashes
+    print(profileList)
 
+    for item in profileList:
+        fname = item[0:len(item) - 4]  # getting the filename without extension
+        if fname.isdigit() == True:  # comparing that to an integer to see if needs be copied/renamed
+            fp = open(url2 + item, 'r')  # opens pfl file and reads
+            line = fp.readlines()
+            print(line[1])
+            line = line[1]  # Gets the Name= line
+            profileName = str(line[5:len(line) - 1])
+            print(profileName)
+            namesource = url2 + fname + ".pfl"
+            print(namesource)
+            namedest = profileName + fname + ".pfl"  # add fname to avoid same domain
+            namedest = namedest.replace('\\', '_')
+            namedest = namedest.replace('/', '_')
+            namedest = namedest.replace('*', '_')
+            namedest = url2 + namedest
+            print(namesource)
+            print(namedest)
+            try:
+                copyfile(namesource, namedest)
+            except FileNotFoundError:
+                print("This will need a check: " + namedest)
+        else:
+            print("please check " + item)
 
 
 if __name__ == "__main__":
