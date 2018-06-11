@@ -1,24 +1,3 @@
-# The MIT License
-#
-# Copyright (c) 2018 Mo Battah
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
 from jinja2 import Template
 import pyodbc
 import os
@@ -29,8 +8,10 @@ import datetime
 def main():
     global url
     global url2
+    global url3
     url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles"  #type in here where your profiles are located
     url2 = url + "\\"
+    url3 = "E:\\Web\\WebLogExpertAutomation\\BatList.txt"
     sys.stdout = open(url + '\\logfile.txt', 'a')  ###LOGGING
     print("Start: ", str(datetime.datetime.now()).split('.')[0])
     chkmkdirs(url2)
@@ -56,7 +37,7 @@ def SQLGET():
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=muser;'
+        r'UID=user;'
         r'PWD=pass'
     )
     cursor = conn.cursor()
@@ -175,8 +156,18 @@ def chkmkdirs(url2):
     if not os.path.exists(url3):
         os.makedirs(url3)
         print("Created RenamedProfiles folder in ", url3)
+        
+        
+def updatetextfile():
+    SQLList = SQLGET()
+    SQLProfileNames = []
+    for row in SQLList:
+        if row[1] == "Web": #taking out any PDF profiles
+            SQLProfileNames.append(row[0])  #creating a SQLprofileNames list of the profile names from SQL DB
+    textfile = open(url3, 'r+')
+    textfile.truncate()
+    for item in SQLProfileNames:
+        textfile.write(item + '\n')
 
 if __name__ == "__main__":
     main()
-
-
