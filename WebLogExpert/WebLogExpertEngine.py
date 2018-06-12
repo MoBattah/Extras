@@ -9,13 +9,13 @@ def main():
     global url
     global url2
     global url3
-    url = "C:\\ProgramData\\WebLogExpert\\Profiles"  #type in here where your profiles are located
+    url = "C:\\ProgramData\\WebLog Expert\\Profiles"  #type in here where your profiles are located
     url2 = url + "\\"
     url3 = "E:\\Web\\WebLogExpertAutomation\\BatList.txt"  #Type in where the ProfilesList should be located for the nightly batch file run
     if os.path.exists(url + "\\logfile.txt"):   #LOGGING
-        sys.stdout = open(url + "\\logfile.txt", 'a')
+        sys.stdout = open(url + "\\logfile.txt", 'a+')
     else:
-        sys.stdout = open(url + "\\logfile.txt", 'w')
+        sys.stdout = open(url + "\\logfile.txt", "w+")
     print("Start: ", str(datetime.datetime.now()).split('.')[0])
     chkmkdirs(url2)
     try:
@@ -33,7 +33,7 @@ def main():
         logpath = LogPaths[count]
         CreateTemplate(profile, domain, logpath,url)
         count = count + 1
-    updatetextfile()
+    updatetextfile(url3)
     print("End: ", str(datetime.datetime.now()).split('.')[0])
 
     sys.stdout.close()  ###LOGGING
@@ -42,8 +42,8 @@ def SQLGET():
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=tesure;'
-        r'PWD=pass'
+        r'UID=;'
+        r'PWD='
     )
     cursor = conn.cursor()
     sqlstring = "SELECT TOP (1000) [ProfileName],[ProfileType],[LogFilePath],[TargetFilePath] FROM [dbo].[profiles]"
@@ -157,13 +157,13 @@ def chkmkdirs(url2):
         os.makedirs(url2 + "NewProfiles\\")
         print("Created NewProfiles folder in ", url2)
     global url3
-    url3 = url2 + "RenamedProfiles\\"
-    if not os.path.exists(url3):
-        os.makedirs(url3)
-        print("Created RenamedProfiles folder in ", url3)
+    url4 = url2 + "RenamedProfiles\\"
+    if not os.path.exists(url4):
+        os.makedirs(url4)
+        print("Created RenamedProfiles folder in ", url4)
 
 
-def updatetextfile():
+def updatetextfile(url3):
     SQLList = SQLGET()
     SQLProfileNames = []
     for row in SQLList:
