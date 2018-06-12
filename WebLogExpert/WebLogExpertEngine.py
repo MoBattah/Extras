@@ -6,34 +6,34 @@ from shutil import copyfile
 import datetime
 
 def main():
-    global url
-    global url2
-    global url3
+    global url #Profiles location
+    global url2 #Profiles location with slashes
+    global url3 # Text file
     url = "C:\\ProgramData\\WebLog Expert\\Profiles"  #type in here where your profiles are located
     url2 = url + "\\"
-    url3 = "E:\\Web\\WebLogExpertAutomation\\BatList.txt"  #Type in where the ProfilesList should be located for the nightly batch file run
+    url3 = "E:\\Web\\WebLogExpertAutomation\\BatList.txt"  #Type in where the ProfilesList text file should be located for the nightly batch file run
     if os.path.exists(url + "\\logfile.txt"):   #LOGGING
         sys.stdout = open(url + "\\logfile.txt", 'a+')
     else:
         sys.stdout = open(url + "\\logfile.txt", "w+")
     print("Start: ", str(datetime.datetime.now()).split('.')[0])
-    chkmkdirs(url2)
+    chkmkdirs()
     try:
         if sys.argv[1] == 'r': #if r is passed as an argument, run the renamer script
-            renameDIGITFiles(url, url2)
+            renameDIGITFiles()
     except:
         print("No arguments passed. Will not run renamer script.")
     SQLList = SQLGET()
-    profileList = FetchProfileFolder(url, url2)
-    WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList, url, url2)
+    profileList = FetchProfileFolder()
+    WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList)
     count = 0
     for x, y, z in zip(WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths):
         profile = WebProfilesToBeAdded[count]
         domain = DomainNamesToBeAdded[count]
         logpath = LogPaths[count]
-        CreateTemplate(profile, domain, logpath,url)
+        CreateTemplate(profile, domain, logpath)
         count = count + 1
-    updatetextfile(url3)
+    updatetextfile()
     print("End: ", str(datetime.datetime.now()).split('.')[0])
 
     sys.stdout.close()  ###LOGGING
@@ -51,7 +51,7 @@ def SQLGET():
     return cursor
 
 
-def FetchProfileFolder(url, url2):
+def FetchProfileFolder():
     profileList = []
     directorylist = os.listdir(path=url)
     for item in directorylist:
@@ -60,7 +60,7 @@ def FetchProfileFolder(url, url2):
         else: print(item, " is a directory and not a file.")
     return profileList
 
-def CreateTemplate(ProfileName, Domain, LogFilepath, url):
+def CreateTemplate(ProfileName, Domain, LogFilepath):
     t = Template("[Profile]\nName={{PName}}\n[General]\nIndexFile=default.aspx\nDomain={{domain}}\nDNSLookup=1\n"\
              "bRetrievePageTitles=0\nbUseANalysisCache=1\nPaidSearchAndGoals=0\nCustomAnalysisSettings=0\n"\
              "AnalysisSettings-iShowFileQueryParameters=0\nAnalysisSettings-stFileQueryParameters=\n"
@@ -95,7 +95,7 @@ def CreateTemplate(ProfileName, Domain, LogFilepath, url):
         fh.close()
 
 
-def CompareData(profileList, SQLList, url, url2):
+def CompareData(profileList, SQLList):
     SQLprofileNames = []
     LogPaths = []
     for row in SQLList:
@@ -123,7 +123,7 @@ def CompareData(profileList, SQLList, url, url2):
         domainnames.append(line)
     return toBeAddedProfiles, domainnames, LogPaths
 
-def renameDIGITFiles(url, url2):
+def renameDIGITFiles():
     profileList = os.listdir(path=url) #checks whats in the directory
     print("List of files in ", url, profileList)
 
@@ -139,10 +139,10 @@ def renameDIGITFiles(url, url2):
             namesource = url2 + fname + ".pfl"
             print("Renaming from ", namesource)
             namedest = profileName + fname + ".pfl"  # add fname to avoid same domain
-            namedest = namedest.replace('\\', '_')
+            namedest = namedest.replace('\\', '_') #filter out slahes and stars from destination filename
             namedest = namedest.replace('/', '_')
             namedest = namedest.replace('*', '_')
-            namedest = url3 + namedest
+            namedest = url2 + namedest
             print(namesource)
             print("Renamed to ", namedest)
             try:
@@ -152,18 +152,16 @@ def renameDIGITFiles(url, url2):
         else:
             print("please check " + item)
 
-def chkmkdirs(url2):
+def chkmkdirs():
     if not os.path.exists(url2 + "NewProfiles\\"):
         os.makedirs(url2 + "NewProfiles\\")
         print("Created NewProfiles folder in ", url2)
-    global url3
-    url4 = url2 + "RenamedProfiles\\"
-    if not os.path.exists(url4):
-        os.makedirs(url4)
-        print("Created RenamedProfiles folder in ", url4)
+    if not os.path.exists(url2 + "RenamedProfiles\\"):
+        os.makedirs(url2 + "RenamedProfiles\\")
+        print("Created RenamedProfiles folder in ", url2 + "RenamedProfiles\\")
 
 
-def updatetextfile(url3):
+def updatetextfile():
     SQLList = SQLGET()
     SQLProfileNames = []
     for row in SQLList:
@@ -177,3 +175,5 @@ def updatetextfile(url3):
 
 if __name__ == "__main__":
     main()
+
+
