@@ -25,7 +25,7 @@ def main():
         print("No arguments passed. Will not run renamer script.")
     SQLList = SQLGET()
     profileList = FetchProfileFolder()
-    WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths = CompareData(profileList, SQLList)
+    WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths, AllInclusiveList = CompareData(profileList, SQLList)
     count = 0
     for x, y, z in zip(WebProfilesToBeAdded, DomainNamesToBeAdded, LogPaths):
         profile = WebProfilesToBeAdded[count]
@@ -33,7 +33,7 @@ def main():
         logpath = LogPaths[count]
         CreateTemplate(profile, domain, logpath)
         count = count + 1
-    updatetextfile()
+    updatetextfile(AllInclusiveList)
     print("End: ", str(datetime.datetime.now()).split('.')[0])
 
     sys.stdout.close()  ###LOGGING
@@ -42,8 +42,8 @@ def SQLGET():
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=;'
-        r'PWD='
+        r'UID=asfd;'
+        r'PWD=asdfsadfr'
     )
     cursor = conn.cursor()
     sqlstring = "SELECT TOP (1000) [ProfileName],[ProfileType],[LogFilePath],[TargetFilePath] FROM [dbo].[profiles]"
@@ -114,6 +114,7 @@ def CompareData(profileList, SQLList):
         count = count + 1
     overlap = set(OSdomainlist) & set(SQLprofileNames)
     print("These ", len(overlap), " profiles are already in WebLogExpert: \n", overlap)
+    AllInclusiveList = set(SQLprofileNames) | set(OSdomainlist)
     toBeAddedProfiles = set(SQLprofileNames) - set(OSdomainlist)
     toBeAddedProfiles = list(toBeAddedProfiles) #converting from set to list
     print("\nThese", len(toBeAddedProfiles),"profiles are not in WebLogExpert but they should be: \n", toBeAddedProfiles)
@@ -121,7 +122,7 @@ def CompareData(profileList, SQLList):
     for item in toBeAddedProfiles: #getting domain names
         line = item[item.index('_') + 1:len(item)]  #find where the underscore starts and only take what's after it, the actual domain names
         domainnames.append(line)
-    return toBeAddedProfiles, domainnames, LogPaths
+    return toBeAddedProfiles, domainnames, LogPaths, AllInclusiveList
 
 def renameDIGITFiles():
     profileList = os.listdir(path=url) #checks whats in the directory
@@ -161,19 +162,13 @@ def chkmkdirs():
         print("Created RenamedProfiles folder in ", url2 + "RenamedProfiles\\")
 
 
-def updatetextfile():
-    SQLList = SQLGET()
-    SQLProfileNames = []
-    for row in SQLList:
-        SQLProfileNames.append(row[0])  #creating a SQLProfileNames list of the profile names from SQL DB
+def updatetextfile(AllInclusiveList):
     textfile = open(url3, 'r+')
     textfile.truncate()
-    for item in SQLProfileNames:
-        textfile.write(item + '\n')
+    for item in AllInclusiveList:
+        textfile.write("\""+ item + "\"\n")
     print("Updated profile list text file. ")
 
 
 if __name__ == "__main__":
     main()
-
-
