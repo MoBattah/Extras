@@ -9,10 +9,13 @@ def main():
     global url
     global url2
     global url3
-    url = "C:\\Users\\mo.battah\\Documents\\WebLog\\TestProfiles"  #type in here where your profiles are located
+    url = "C:\\ProgramData\\WebLogExpert\\Profiles"  #type in here where your profiles are located
     url2 = url + "\\"
-    url3 = "E:\\Web\\WebLogExpertAutomation\\BatList.txt"
-    sys.stdout = open(url + '\\logfile.txt', 'a')  ###LOGGING
+    url3 = "E:\\Web\\WebLogExpertAutomation\\BatList.txt"  #Type in where the ProfilesList should be located for the nightly batch file run
+    if os.path.exists(url + "\\logfile.txt"):   #LOGGING
+        sys.stdout = open(url + "\\logfile.txt", 'a')
+    else:
+        sys.stdout = open(url + "\\logfile.txt", 'w')
     print("Start: ", str(datetime.datetime.now()).split('.')[0])
     chkmkdirs(url2)
     try:
@@ -30,14 +33,16 @@ def main():
         logpath = LogPaths[count]
         CreateTemplate(profile, domain, logpath,url)
         count = count + 1
+    updatetextfile()
     print("End: ", str(datetime.datetime.now()).split('.')[0])
+
     sys.stdout.close()  ###LOGGING
 def SQLGET():
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=devops01test.database.windows.net;'
         r'DATABASE=TestWebHookDB;'
-        r'UID=user;'
+        r'UID=tesure;'
         r'PWD=pass'
     )
     cursor = conn.cursor()
@@ -156,18 +161,19 @@ def chkmkdirs(url2):
     if not os.path.exists(url3):
         os.makedirs(url3)
         print("Created RenamedProfiles folder in ", url3)
-        
-        
+
+
 def updatetextfile():
     SQLList = SQLGET()
     SQLProfileNames = []
     for row in SQLList:
-        if row[1] == "Web": #taking out any PDF profiles
-            SQLProfileNames.append(row[0])  #creating a SQLprofileNames list of the profile names from SQL DB
+        SQLProfileNames.append(row[0])  #creating a SQLProfileNames list of the profile names from SQL DB
     textfile = open(url3, 'r+')
     textfile.truncate()
     for item in SQLProfileNames:
         textfile.write(item + '\n')
+    print("Updated profile list text file. ")
+
 
 if __name__ == "__main__":
     main()
