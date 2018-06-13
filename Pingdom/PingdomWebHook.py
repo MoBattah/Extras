@@ -6,10 +6,10 @@ import datetime
 app = Flask(__name__)
 
 global pingdomlogfile
-pingdomlogfile = "E:\\Web\\PingdomWebHook\\PingdomWebHookLog.log"
+pingdomlogfile = "E:\\Web\\PingdomWebHook\\PingdomWebHookLog"
 @app.route('/', methods=['POST'])
 def main():
-    sys.stdout = open(pingdomlogfile, 'a')  ###LOGGING
+    sys.stdout = open(pingdomlogfile, 'w+')  ###LOGGING
     print("Start: ", str(datetime.datetime.now()).split('.')[0])
     print("Webhook started");
     if request.method == 'POST':
@@ -45,10 +45,10 @@ def gatherParameters():
     check_name = fetchParameter("check_name")
     long_description = fetchParameter("long_description")
     description = fetchParameter("description")
-    sqlStatement = "INSERT INTO WebHookTestTable (check_id, check_name, check_type, full_url, hostname, previous_state, current_state, importance_level, state_changed_timestamp, state_changed_utc_time, long_description, description) " \
+    sqlStatement = "INSERT INTO WebHookPingdomTemp (check_id, check_name, check_type, full_url, hostname, previous_state, current_state, importance_level, state_changed_timestamp, state_changed_utc_time, long_description, description) " \
                    "VALUES(\'"+check_id+"\',\'"+check_name+"\',\'"+check_type+"\',\'"+full_url+"\',\'"+hostname+"\',\'"+previous_state+"\',\'"+current_state+"\',\'"+importance_level+"\',\'"+state_changed_timestamp+"\',\'"+state_changed_utc_time+"\',\'"+long_description+"\',\'"+description+"\')"
     SQLExecute(sqlStatement)
-    print("Executed "+sqlStatement)
+    print("Sent to be executed: "+sqlStatement)
 
 
 def fetchParameter(columnname):
@@ -62,10 +62,10 @@ def SQLExecute(executestring):
     print("SQLExecute")
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 17 for SQL Server};'
-        r'SERVER=devops01test.database.windows.net;'
-        r'DATABASE=TestWebHookDB;'
-        r'UID=user;'
-        r'PWD=pass'
+        r'SERVER=db.database.windows.net;'
+        r'DATABASE=DevOpsDB;'
+        r'UID=youruser;'
+        r'yourpass'
     )
     conn.autocommit = True
     cursor = conn.cursor()
