@@ -2,11 +2,31 @@ import pyodbc
 
 def main():
     cursor = SQLGET()
-    createlists(cursor)
-def createlists(cursor):
+    global demo, development, stage, uncat, production, ops, integration, deprecated
+    demo = []
+    development = []
+    integration = []
+    production = []
+    stage = []
+    uncat = []
+    ops = []
+    deprecated = []
+    createlist(cursor)
+
+def createlist(cursor):
+    switchstmt = {
+        'Demo': lambda x: demo.append(x),
+        'Development' : lambda x: development.append(x),
+        'Stage': lambda x: stage.append(x),
+        'Uncategorized': lambda x: uncat.append(x),
+        'Production': lambda x: production.append(x),
+        'Operations': lambda x: ops.append(x),
+        'Integration': lambda x: integration.append(x),
+        'DEPRECATED': lambda x: deprecated.append(x),
+    }
     for item in cursor:
-        print(item[0])
-        print(item[1])
+        switchstmt[item[1]](item[3])
+    print(demo)
 
 def createstring():
     head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
