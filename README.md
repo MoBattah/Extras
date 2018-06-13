@@ -12,4 +12,4 @@ PingdomAddCheck - Interacts with Pingdom API to add a custom integration check.
 
 AutoDownloadCandidate - Automates candidate information downloads in Akken ATS via Selenium.
 
-WebLogExpertTemplate - Automates profile creation. Fetches from SQL DB. 
+WebLogExpertEngine - Automates WebLogExpert. Fetches from SQL DB. Cleans, renames and updates.
