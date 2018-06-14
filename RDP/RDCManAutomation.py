@@ -25,8 +25,7 @@ def svrgrouplist(cursor):
 
 
 def createstring(demo, development, stage, production, operations, preproduction, it):
-    head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-    RDCManopen = "<RDCMan programVersion=\"2.7\" schemaVersion=\"3\"><file><credentialsProfiles /><properties><expanded>True</expanded><name>Servers</name></properties>"
+    RDCManopen = "<?xml version=\"1.0\" encoding=\"utf-8\"?><RDCMan programVersion=\"2.7\" schemaVersion=\"3\"><file><credentialsProfiles /><properties><expanded>True</expanded><name>Servers</name></properties>"
     OperationsGroup = "<group> <properties> <expanded>True</expanded> <name>Operations</name> </properties>"
     DevGroup = "<group> <properties> <expanded>True</expanded> <name>Development</name> </properties>"
     StageGroup = "<group> <properties> <expanded>True</expanded> <name>Stage</name> </properties>"
@@ -35,36 +34,24 @@ def createstring(demo, development, stage, production, operations, preproduction
     PreProductionGroup = "<group> <properties> <expanded>True</expanded> <name>PreProduction</name> </properties>"
     ITGroup = "<group> <properties> <expanded>True</expanded> <name>IT</name> </properties>"
     DemoGroup = "<group> <properties> <expanded>True</expanded> <name>Demo</name> </properties>"
-
-
-
-    for item in production:
-        ProdGroup = ProdGroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
-    ProdGroup = ProdGroup + "</group>"
-    for item in development:
-        DevGroup = DevGroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
-    DevGroup = DevGroup + "</group>"
-    for item in stage:
-        StageGroup = StageGroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
-    StageGroup = StageGroup + "</group>"
-    for item in demo:
-        DemoGroup = DemoGroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
-    DemoGroup = DemoGroup + "</group>"
-    for item in preproduction:
-        PreProductionGroup = PreProductionGroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
-    PreProductionGroup = PreProductionGroup + "</group>"
-    for item in it:
-        ITGroup = ITGroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
-    ITGroup = ITGroup + "</group>"
-    for item in operations:
-        OperationsGroup = OperationsGroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
-    OperationsGroup = OperationsGroup + "</group>"
-
+    grouplist = ProdGroup + DevGroup + StageGroup + DemoGroup + PreProductionGroup + ITGroup + OperationsGroup
+    svrlist = demo, development, stage, production, operations, preproduction, it
+    x = 0
+    for item in grouplist:
+        print(item, svrlist[x])
+        groupstring(item, svrlist[x])
+        x = x + 1
 
     fp = open("C:\\Users\\mo.battah\\final.rdg", 'w+')
-    fp.write(head + RDCManopen + ProdGroup + DevGroup + StageGroup + DemoGroup + PreProductionGroup + ITGroup + OperationsGroup + Ending)
+    fp.write(RDCManopen + grouplist + Ending)
     fp.close()
 
+
+def groupstring(servgroup, servlist):
+    for item in servlist:
+        servgroup = servgroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
+    servgroup = servgroup + "</group>"
+    return servgroup
 
 
 def SQLGET():
