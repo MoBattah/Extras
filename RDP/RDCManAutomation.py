@@ -34,20 +34,22 @@ def createstring(demo, development, stage, production, operations, preproduction
     PreProductionGroup = "<group> <properties> <expanded>True</expanded> <name>PreProduction</name> </properties>"
     ITGroup = "<group> <properties> <expanded>True</expanded> <name>IT</name> </properties>"
     DemoGroup = "<group> <properties> <expanded>True</expanded> <name>Demo</name> </properties>"
-    grouplist = ProdGroup + DevGroup + StageGroup + DemoGroup + PreProductionGroup + ITGroup + OperationsGroup
     svrlist = demo, development, stage, production, operations, preproduction, it
-    x = 0
-    for item in grouplist:
-        print(item, svrlist[x])
-        groupstring(item, svrlist[x])
-        x = x + 1
-
+    DemoGroup = groupstring(DemoGroup, demo)
+    DevGroup = groupstring(DevGroup, development)
+    StageGroup = groupstring(StageGroup, stage)
+    ProdGroup = groupstring(ProdGroup, production)
+    PreProductionGroup = groupstring(PreProductionGroup, preproduction)
+    ITGroup = groupstring(ITGroup, it)
+    OperationsGroup = groupstring(OperationsGroup, operations)
+    grouplist = ProdGroup + DevGroup + StageGroup + DemoGroup + PreProductionGroup + ITGroup + OperationsGroup
     fp = open("C:\\Users\\mo.battah\\final.rdg", 'w+')
     fp.write(RDCManopen + grouplist + Ending)
     fp.close()
 
 
 def groupstring(servgroup, servlist):
+    servgroup = servgroup
     for item in servlist:
         servgroup = servgroup + "<server> <properties> <name>" + item + "</name> </properties> </server>"
     servgroup = servgroup + "</group>"
