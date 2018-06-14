@@ -4,23 +4,24 @@ def main():
     cursor = SQLGET()
     global demo, development, stage, production, operations, preproduction, it
     demo, development, stage, production, operations, preproduction, it = ([] for i in range(7))
-    demo, development, stage, production, operations, preproduction, it = createlist1(cursor)
+    demo, development, stage, production, operations, preproduction, it = environmentlist(cursor)
     createstring(demo, development, stage, production, operations, preproduction, it)
     cursor = SQLGET()
-    createlist2(cursor)
+    svrgrouplist(cursor)
 
-def createlist1(cursor):
+def environmentlist(cursor):
     for item in cursor:
         globals()[item[1].lower()].append(item[3])
     return demo, development, stage, production, operations, preproduction, it
 
-def createlist2(cursor):
-    SQL, SAP, LIC, CTX, UTL, SYB, ADS, VBC = ([] for i in range(8))
+def svrgrouplist(cursor):
+    global CFW, OSS, HBK, NAMESERVER, SVC, BOD, LVM, SOL, WEB, DOS, BLP, SVN, HDP, AFS, CMC, TRX, CSF, BQE, SEC, FIL, NPS, HDA, OFS, NPM, DEV, CTX, CTL, SBK, WHD, MRW, UCS, CMS, VFS, LIC, CNS, ESX,VSHIELDFW, IMG, VMWARETEMPLATE, DOC, ORA, SQl, CDC, BOB, FIN, PFS, GBK, SPE, SRM, ONE, UMT, SAP, SCS, UTL, HDC, PRS, FSS, SYB, OBK, VBR, VCS, SFS, WDS, SMT, DHP, OPS, FOG, RDP, SPT, TST, NOP, CAD, WDP, VBP, SGS, ADS, TFS, GIP, CPS, ECA, APP, CFS, DVM, VCP, OWA, KSN, DNS, HAN, SLG, RAD, CSQ, SUS, PDQ, QVA, ADC, SPECIALVM, FTP, BTI, CFP, TAB, TFB, VBC, SQL, DBK, VID, SPO, TEL, ASS, CSG
+    CFW, OSS, HBK, NAMESERVER, SVC, BOD, LVM, SOL, WEB, DOS, BLP, SVN, HDP, AFS, CMC, TRX, CSF, BQE, SEC, FIL, NPS, HDA, OFS, NPM, DEV, CTX, CTL, SBK, WHD, MRW, UCS, CMS, VFS, LIC, CNS, ESX, VSHIELDFW, IMG, VMWARETEMPLATE, DOC, ORA, SQl, CDC, BOB, FIN, PFS, GBK, SPE, SRM, ONE, UMT, SAP, SCS, UTL, HDC, PRS, FSS, SYB, OBK, VBR, VCS, SFS, WDS, SMT, DHP, OPS, FOG, RDP, SPT, TST, NOP, CAD, WDP, VBP, SGS, ADS, TFS, GIP, CPS, ECA, APP, CFS, DVM, VCP, OWA, KSN, DNS, HAN, SLG, RAD, CSQ, SUS, PDQ, QVA, ADC, SPECIALVM, FTP, BTI, CFP, TAB, TFB, VBC, SQL, DBK, VID, SPO, TEL, ASS, CSG = ([] for i in range(109))
     for item in cursor:
-        SQL.append(item[2])
-    SQL = list(set(SQL))
-    for item in SQL:
-        print(item + ",")
+        try: globals()[item[2].upper()].append(item[3])
+        except KeyError:
+            if item[2] == "VSHIELD-FW":
+                VSHIELDFW.append(item[3])
 
 
 def createstring(demo, development, stage, production, operations, preproduction, it):
@@ -34,13 +35,6 @@ def createstring(demo, development, stage, production, operations, preproduction
     PreProductionGroup = "<group> <properties> <expanded>True</expanded> <name>PreProduction</name> </properties>"
     ITGroup = "<group> <properties> <expanded>True</expanded> <name>IT</name> </properties>"
     DemoGroup = "<group> <properties> <expanded>True</expanded> <name>Demo</name> </properties>"
-    development = list(set(development))
-    demo = list(set(demo))
-    stage = list(set(stage))
-    production = list(set(production))
-    operations = list(set(operations))
-    it = list(set(it))
-    preproduction = list(set(preproduction))
 
 
 
