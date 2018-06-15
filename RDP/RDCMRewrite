@@ -1,0 +1,9 @@
+import pyodbc
+
+def SQLGET():
+    conn = pyodbc.connect(
+        r'DRIVER={ODBC Driver 17 for SQL Server};'
+        r'SERVER=devops01.database.windows.net;'
+        r'DATABASE=DevOpsDB;'
+        r'TRUSTED_CONNECTION=Yes;'
+    )
