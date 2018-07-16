@@ -22,16 +22,7 @@ DECLARE DB_Cursor CURSOR FOR
 SELECT dbid,
 	name
 FROM #DBList
---WHERE owner <> 'sa'
---WHERE name in ('foglight')
---WHERE name in ('msdb')
---WHERE name in ('HPIPartnerWalletDB')
---WHERE name in ('DellChannelPartnerWalletDB')
---WHERE name in ('DellChannelSalesDB')
---WHERE name in ('HawkeyeReportingDB')
---WHERE name in ('MuMaLinus_Stage')
---WHERE name in ('HPE_DealRegRep')
---WHERE name in ('distribution')
+
 WHERE name not in ('master', 'model', 'msdb', 'tempdb', 'distribution', 'ReplicationDistribution')
             
 OPEN DB_Cursor
