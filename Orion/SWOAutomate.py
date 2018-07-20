@@ -8,7 +8,7 @@ logfile = "C:\\Users\\mo.battah\\orionlogfile"
 
 def main():
 
-    sys.stdout = open(logfile, 'w+')
+    sys.stdout = open(logfile, 'a+')
     print("Start: ", str(datetime.datetime.now()).split('.')[0])
     cursor = SQLExecute("SELECT [VolumeType], [FullName],[VolumePercentUsed] FROM [SW_ORION_PROD].[dbo].[Volumes] WHERE VolumePercentUsed >= '90'")
     getavg(cursor)
@@ -21,8 +21,8 @@ def SQLExecute(executestring):
     print("SQLExecute")
     conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 13 for SQL Server};'
-        r'DSN=USEGSQLWP001;'
-        r'SERVER=USEGSQLWP001.vistex.local;'
+        r'DSN=#USEGSQLW001;'
+        r'SERVER=U#SEGSQLW001.yourdomain.local;'
         r'Trusted_Connection=yes;')
     #conn.autocommit = True
     cursor = conn.cursor()
@@ -35,7 +35,7 @@ def SQLExecute(executestring):
 def shrinkSQLlogs(cursor):
     sqlboxes = []
     for row in cursor: #print rows greater than a threshold if you'd like by limiting row[2]
-        astring = row[1].split('-')[0]#geting only the hostname
+        astring = row[1].split('-')[0]#getting only the hostname
         if 'SQL' in astring:
             sqlboxes.append(astring) #getting list of only SQL boxes
     print(sqlboxes, len(sqlboxes))#for logging
@@ -70,9 +70,10 @@ def connecttoremote(hostname):
     cnxn = pyodbc.connect(
         r'DRIVER={ODBC Driver 13 for SQL Server};'
         r'DSN=USEGSQLWP001;'
-        r'SERVER='+hostname+'.vistex.local;'
+        r'SERVER='+hostname+'.yourdomain.local;'
         r'Trusted_Connection=yes;')
     print("Connection information")
+    cnxn.autocommit = True
     cursor = cnxn.cursor()
     cursor.execute("SELECT * FROM sys.databases")
     for row in cursor:
@@ -90,4 +91,6 @@ def getavg(cursor):
         count = count + 1
     avg = total / count
     print("The average disk load: ", avg, "%")
+
+
 main()
