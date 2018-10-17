@@ -2,18 +2,20 @@ import sys
 import pyodbc
 from flask import Flask, request, abort
 import datetime
+import config
 
 app = Flask(__name__)
 
 global pingdomlogfile
-pingdomlogfile = "E:\\Web\\PingdomWebHook\\PingdomWebHookLog"
+pingdomlogfile = config.CONFIG['LogFileLocation']
+
+
+
 @app.route('/', methods=['POST'])
 def main():
-    sys.stdout = open(pingdomlogfile, 'w+')  ###LOGGING
-    print("Start: ", str(datetime.datetime.now()).split('.')[0])
-    print("Webhook started");
     if request.method == 'POST':
-        print("Recieved POST")
+        sys.stdout = open(pingdomlogfile, 'a+')  #LOGGING
+        print("POST: ", str(datetime.datetime.now()).split('.')[0])
         print(request.json)
         gatherParameters()
         return '', 200
@@ -21,7 +23,7 @@ def main():
         print("Recieved something other than POST.")
         abort(400)
     sys.stdout.close()  ###LOGGING
-    main()
+
 
 def gatherParameters():
     print("GatherParameters")
@@ -31,7 +33,8 @@ def gatherParameters():
     print("Fetch check_type")
     hostname = request.json["check_params"]["hostname"]
     print("Fetch hostname")
-    try: full_url = request.json["check_params"]["full_url"]
+    try:
+        full_url = request.json["check_params"]["full_url"]
     except KeyError:
         full_url = hostname
     print("Fetch url")
@@ -46,27 +49,20 @@ def gatherParameters():
     long_description = fetchParameter("long_description")
     description = fetchParameter("description")
     sqlStatement = "INSERT INTO WebHookPingdomTemp (check_id, check_name, check_type, full_url, hostname, previous_state, current_state, importance_level, state_changed_timestamp, state_changed_utc_time, long_description, description) " \
-                   "VALUES(\'"+check_id+"\',\'"+check_name+"\',\'"+check_type+"\',\'"+full_url+"\',\'"+hostname+"\',\'"+previous_state+"\',\'"+current_state+"\',\'"+importance_level+"\',\'"+state_changed_timestamp+"\',\'"+state_changed_utc_time+"\',\'"+long_description+"\',\'"+description+"\')"
+                   "VALUES(\'" + check_id + "\',\'" + check_name + "\',\'" + check_type + "\',\'" + full_url + "\',\'" + hostname + "\',\'" + previous_state + "\',\'" + current_state + "\',\'" + importance_level + "\',\'" + state_changed_timestamp + "\',\'" + state_changed_utc_time + "\',\'" + long_description + "\',\'" + description + "\')"
     SQLExecute(sqlStatement)
-    print("Sent to be executed: "+sqlStatement)
+    print("Sent to be executed: " + sqlStatement)
 
 
 def fetchParameter(columnname):
-    print("fetchParameter")
     param = request.json[str(columnname)]
     param = str(param)
     return param
 
 
 def SQLExecute(executestring):
-    print("SQLExecute")
-    conn = pyodbc.connect(
-        r'DRIVER={ODBC Driver 17 for SQL Server};'
-        r'SERVER=db.database.windows.net;'
-        r'DATABASE=DevOpsDB;'
-        r'UID=youruser;'
-        r'yourpass'
-    )
+    connection_string = "DRIVER={ODBC Driver 17 for SQL Server}; " + "SERVER=" + config.CONFIG['Server'] + ";DATABASE=" + config.CONFIG['Database'] + ";UID=" + config.CONFIG['UID'] + ";PWD=" + config.CONFIG['PWD']
+    conn = pyodbc.connect(connection_string)
     conn.autocommit = True
     cursor = conn.cursor()
     print(executestring)
@@ -74,5 +70,13 @@ def SQLExecute(executestring):
     print("SQL executed")
 
 
+@app.route('/internalcheck.html')
+def internalcheck():
+    sys.stdout = open(pingdomlogfile, 'a+')  ###LOGGING
+    print("Start: ", str(datetime.datetime.now()).split('.')[0])
+    print("Internal check page triggered")
+    sys.stdout.close()  ###LOGGING
+    return 'Site is up'
+
 if __name__ == '__main__':
-    app.run('0.0.0.0',8083)
+    app.run('0.0.0.0', 8088)
