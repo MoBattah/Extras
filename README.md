@@ -1,5 +1,7 @@
 # Extras
 
+RDP - Crawls your AWS infrastructure to create Mac + Windows compatible remote desktop files.
+
 PingdomWebHook - Template application for recieving Pingdom alerts and logging them to a SQL server (optional: in Azure).  
 
 GoServ - Launches PingdomWebHook hosted on gevent. 
