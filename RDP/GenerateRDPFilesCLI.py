@@ -1,7 +1,12 @@
 #Command-line application for automatically generating RDP files.
+#Change aws_profile before using.
+
 import click
 import boto3
 import os
+
+global profile
+aws_profile = 'allpower'
 
 @click.group()
 def main():
@@ -15,19 +20,19 @@ def mac():
     """Creates Mac-compatible RDP files"""
     build_dictionary = get_instance_information()
     create_mac_rdp_files(build_dictionary)
-    click.echo("Created RDP files for Mac")
+    click.echo("Created RDP files for Mac in a folder named RDP Files.")
 
 @main.command()
 def rdcman():
     """Creates Remote Desktop Connection Manager (.rdg) File"""
     build_dictionary = get_instance_information()
     create_rdcman_config(build_dictionary)
-    click.echo("Created AWS.rdg")
+    click.echo("Created AWS.rdg Please import to Remote Desktop Connection Manager.")
 
 
 def get_instance_information():
     instance_dictionary = {}
-    session = boto3.Session(profile_name='allpower')
+    session = boto3.Session(profile_name=aws_profile)
     ec = session.client('ec2')
     reservations = ec.describe_instances()
     for r in reservations['Reservations']:
