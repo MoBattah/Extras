@@ -1,3 +1,5 @@
+#OBSOLETE, DO NOT USE
+
 import pyodbc
 
 def SQLGET():

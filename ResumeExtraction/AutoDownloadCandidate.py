@@ -36,7 +36,7 @@ driver.quit()
 
 
 
-#helpful
+#may be helpful
 #driver.find_element_by_xpath("//div[@id='mainbody']/table/tbody/tr/td[3]/table/tbody/tr[6]/td/table/tbody/tr/td[3]/div/table/tbody/tr/td[4]/a/i").click()
 #driver.find_element_by_xpath("//div[@id='tag48.top.item:0/box']/label/span").click()
 # #####################

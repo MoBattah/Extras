@@ -1,3 +1,4 @@
+#OBSOLETE, DO NOT USE
 import pyodbc
 
 def main():

@@ -1,3 +1,4 @@
+#Command-line application for automatically generating RDP files.
 import click
 import boto3
 import os
